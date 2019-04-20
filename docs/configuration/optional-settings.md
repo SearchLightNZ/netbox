@@ -322,3 +322,55 @@ The password to use when authenticating to the Redis server (optional).
 Default: False
 
 Use secure sockets layer to encrypt the connections to the Redis server.
+
+## Custom Storage
+
+Custom storage classes can be used to store uploaded files (i.e. image attachments) in places other than the filesystem.
+This is useful, for example, if you have a need to store files in object storage services like S3, or in a database of some kind.
+
+You can optionally define an application which is used to serve the files. If this is not provided, the files are expected to be served externally, and access control is not provided by NetBox.
+
+### FILE_STORAGE
+
+Default: None
+
+The storage class. Populates the `DEFAULT_FILE_STORAGE` setting. See [Writing a custom storage system](https://docs.djangoproject.com/en/2.2/howto/custom-file-storage/) for more information on what this needs to provide.
+
+### FILE_STORAGE_APP
+
+Default: None
+
+A Django app to load, in order to view/download files uploaded with `FILE_STORAGE` above.
+
+### FILE_STORAGE_APP_CONFIG
+
+Default: None
+
+A dictionary of config parameters which are set in the settings.py of the main Django application. For example, AWS credentials for S3 in the format required by `django-storages` can be set as follows:
+
+```
+FILE_STORAGE_APP_CONFIG = {
+    'AWS_ACCESS_KEY_ID': 'foo',
+    'AWS_SECRET_ACCESS_KEY': 'bar',
+    ...
+    etc.
+}
+```
+
+### FILE_STORAGE_APP_PREFIX
+
+Default: media
+
+The URL prefix for the above app. Defaults to `media` - which is what NetBox requires for if using the default filesystem storage mechanism.
+
+### FILE_STORAGE_UPLOAD_TO
+
+Default: None
+
+A function name which is provided to the upload_to parameter of ImageField. See [FileField.upload_to](https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField.upload_to) for more information.
+
+This is generally not required, however, some existing storage plugins require this to be in a specific format.
+
+This is a string, of the form `module_a.module_b.function`. When required, the module is automatically imported, then the function is called.
+
+NetBox requires the resulting name to be of the format `(.*/)?<type>_<id>_<filename>`, where `type` is `instance.content_type.name` (i.e. rack, device, etc.), and `id` is `instance.object_id`. See `netbox.extras.models.image_upload` for an example of this.

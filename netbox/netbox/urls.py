@@ -73,6 +73,11 @@ if settings.DEBUG:
         url(r'^__debug__/', include(debug_toolbar.urls)),
     ]
 
+if settings.FILE_STORAGE_APP:
+    _patterns += [
+        url(r'^{}/'.format(settings.FILE_STORAGE_APP_PREFIX), include('{}.urls'.format(settings.FILE_STORAGE_APP))),
+    ]
+
 # Prepend BASE_PATH
 urlpatterns = [
     url(r'^{}'.format(settings.BASE_PATH), include(_patterns))

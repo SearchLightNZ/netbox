@@ -11,8 +11,10 @@ from django.db.models import F, Q
 from django.http import HttpResponse
 from django.template import Template, Context
 from django.urls import reverse
+from django.conf import settings
 import graphviz
 from jinja2 import Environment
+import importlib
 
 from dcim.constants import CONNECTION_STATUS_CONNECTED
 from utilities.utils import deepmerge, foreground_color
@@ -574,7 +576,6 @@ class TopologyMap(models.Model):
 #
 
 def image_upload(instance, filename):
-
     path = 'image-attachments/'
 
     # Rename the file to the provided name, if any. Attempt to preserve the file extension.
@@ -591,6 +592,13 @@ class ImageAttachment(models.Model):
     """
     An uploaded image which is associated with an object.
     """
+    if settings.FILE_STORAGE_UPLOAD_TO:
+        module_name, function_name = settings.FILE_STORAGE_UPLOAD_TO.rsplit('.', 1)
+        module = importlib.import_module(module_name)
+        upload_to = getattr(module, function_name)
+    else:
+        upload_to = image_upload
+
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE
@@ -601,7 +609,7 @@ class ImageAttachment(models.Model):
         fk_field='object_id'
     )
     image = models.ImageField(
-        upload_to=image_upload,
+        upload_to=upload_to,
         height_field='image_height',
         width_field='image_width'
     )
@@ -621,7 +629,11 @@ class ImageAttachment(models.Model):
     def __str__(self):
         if self.name:
             return self.name
-        filename = self.image.name.rsplit('/', 1)[-1]
+
+        filename = self.image.name
+        if '/' in filename:
+            filename = filename.rsplit('/', 1)[-1]
+
         return filename.split('_', 2)[2]
 
     def delete(self, *args, **kwargs):

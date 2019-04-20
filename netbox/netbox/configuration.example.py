@@ -159,3 +159,20 @@ TIME_FORMAT = 'g:i a'
 SHORT_TIME_FORMAT = 'H:i:s'
 DATETIME_FORMAT = 'N j, Y g:i a'
 SHORT_DATETIME_FORMAT = 'Y-m-d H:i'
+
+# Optional alternative file upload functionality
+
+# Class to use for uploaded file storage
+# FILE_STORAGE = 'custom_storage.storage.Storage'
+
+# Django application for uploaded file storage retrieval
+# FILE_STORAGE_APP = 'custom_storage'
+
+# Custom config settings required by FILE_STORAGE_APP
+# FILE_STORAGE_APP_CONFIG = {'PARAM': 'value'}
+
+# Prefix under which the above app is accessed
+# FILE_STORAGE_APP_PREFIX = 'files'
+
+# Custom 'upload_to' function passed to ImageField/FileField
+# FILE_STORAGE_UPLOAD_TO = 'custom_storage.upload_to'

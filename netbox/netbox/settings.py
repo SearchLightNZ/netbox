@@ -230,9 +230,6 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "project-static"),
 )
 
-# Media
-MEDIA_URL = '/{}media/'.format(BASE_PATH)
-
 # Disable default limit of 1000 fields per request. Needed for bulk deletion of objects. (Added in Django 1.10.)
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 
@@ -340,6 +337,27 @@ INTERNAL_IPS = (
     '::1',
 )
 
+# Custom file upload handling
+if hasattr(configuration, 'FILE_STORAGE'):
+    DEFAULT_FILE_STORAGE = getattr(configuration, 'FILE_STORAGE')
+
+FILE_STORAGE_APP = getattr(configuration, 'FILE_STORAGE_APP', None)
+if FILE_STORAGE_APP:
+    INSTALLED_APPS.append(FILE_STORAGE_APP)
+    FILE_STORAGE_APP_CONFIG = getattr(configuration, 'FILE_STORAGE_APP_CONFIG', {})
+    if FILE_STORAGE_APP_CONFIG:
+        for attr_name, attr_value in FILE_STORAGE_APP_CONFIG.items():
+            globals()[attr_name] = attr_value
+
+# Default MEDIA_URL to /<BASE_PATH>media/, but allow FILE_STORAGE_APP_PREFIX to override it only if FILE_STORAGE_APP is set
+if FILE_STORAGE_APP:
+    FILE_STORAGE_APP_PREFIX = getattr(configuration, 'FILE_STORAGE_APP_PREFIX', 'media')
+else:
+    FILE_STORAGE_APP_PREFIX = 'media'
+
+MEDIA_URL = '/{}{}/'.format(BASE_PATH, FILE_STORAGE_APP_PREFIX)
+
+FILE_STORAGE_UPLOAD_TO = getattr(configuration, 'FILE_STORAGE_UPLOAD_TO', None)
 
 try:
     HOSTNAME = socket.gethostname()
