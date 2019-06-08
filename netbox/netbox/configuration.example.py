@@ -175,4 +175,6 @@ SHORT_DATETIME_FORMAT = 'Y-m-d H:i'
 # FILE_STORAGE_APP_PREFIX = 'files'
 
 # Custom 'upload_to' function passed to ImageField/FileField
+# This can either be a string - i.e. 'module.path.function' or it can be
+# a function, perhaps defined earlier in this configuration file.
 # FILE_STORAGE_UPLOAD_TO = 'custom_storage.upload_to'

@@ -593,9 +593,14 @@ class ImageAttachment(models.Model):
     An uploaded image which is associated with an object.
     """
     if settings.FILE_STORAGE_UPLOAD_TO:
-        module_name, function_name = settings.FILE_STORAGE_UPLOAD_TO.rsplit('.', 1)
-        module = importlib.import_module(module_name)
-        upload_to = getattr(module, function_name)
+        if callable(settings.FILE_STORAGE_UPLOAD_TO):
+            upload_to = settings.FILE_STORAGE_UPLOAD_TO
+        elif isinstance(settings.FILE_STORAGE_UPLOAD_TO, str):
+            module_name, function_name = settings.FILE_STORAGE_UPLOAD_TO.rsplit('.', 1)
+            module = importlib.import_module(module_name)
+            upload_to = getattr(module, function_name)
+        else:
+            raise TypeError('FILE_STORAGE_UPLOAD_TO must be a function or string')
     else:
         upload_to = image_upload
 
